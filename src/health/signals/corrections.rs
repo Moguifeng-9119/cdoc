@@ -8,6 +8,7 @@ pub struct CorrectionsSignal;
 impl CorrectionsSignal {
     fn patterns() -> Vec<Regex> {
         vec![
+            // Chinese
             Regex::new(r"不对").unwrap(),
             Regex::new(r"你忘[记了]").unwrap(),
             Regex::new(r"我说的是").unwrap(),
@@ -17,12 +18,27 @@ impl CorrectionsSignal {
             Regex::new(r"前面[说提]").unwrap(),
             Regex::new(r"已经[说讲]过").unwrap(),
             Regex::new(r"记[得]上下文").unwrap(),
+            Regex::new(r"你之前说的").unwrap(),
+            Regex::new(r"我之前说[过了]").unwrap(),
+            Regex::new(r"重新说").unwrap(),
+            Regex::new(r"怎么又").unwrap(),
+            Regex::new(r"错了").unwrap(),
+            Regex::new(r"不是这样").unwrap(),
+            Regex::new(r"你又[来在]").unwrap(),
+            Regex::new(r"别胡[说说扯]").unwrap(),
+            // English
             Regex::new(r"no[,!]?\s*I said").unwrap(),
             Regex::new(r"you forgot").unwrap(),
             Regex::new(r"that's not what").unwrap(),
             Regex::new(r"you misunderstood").unwrap(),
             Regex::new(r"i already told").unwrap(),
             Regex::new(r"as I (said|mentioned)").unwrap(),
+            Regex::new(r"that's not right").unwrap(),
+            Regex::new(r"not correct").unwrap(),
+            Regex::new(r"you'?re missing").unwrap(),
+            Regex::new(r"you'?re ignoring").unwrap(),
+            Regex::new(r"read my").unwrap(),
+            Regex::new(r"i just said").unwrap(),
         ]
     }
 }

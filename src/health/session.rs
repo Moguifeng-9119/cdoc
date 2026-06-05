@@ -233,7 +233,7 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
 pub fn find_all_sessions(projects_dir: &Path) -> EccResult<Vec<std::path::PathBuf>> {
     let mut files = Vec::new();
     for entry in walkdir::WalkDir::new(projects_dir)
-        .max_depth(2)
+        .max_depth(10)
         .into_iter()
         .filter_map(|e| e.ok())
     {
@@ -260,7 +260,7 @@ pub fn find_all_sessions(projects_dir: &Path) -> EccResult<Vec<std::path::PathBu
 pub fn find_project_sessions(project_dir: &Path) -> EccResult<Vec<std::path::PathBuf>> {
     let mut files = Vec::new();
     for entry in walkdir::WalkDir::new(project_dir)
-        .max_depth(2)
+        .max_depth(10)
         .into_iter()
         .filter_map(|e| e.ok())
     {

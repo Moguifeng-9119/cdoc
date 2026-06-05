@@ -34,24 +34,18 @@ fn main() {
 
     let result = match &cli.command {
         Command::List { what } => match what {
-            cli::ListTarget::Rules { long, category: _ } => {
-                rules::list::list_rules(&paths, *long, cli.json)
-            }
+            cli::ListTarget::Rules { long } => rules::list::list_rules(&paths, *long, cli.json),
             cli::ListTarget::Skills { long } => skills::list::list_skills(&paths, *long, cli.json),
             cli::ListTarget::Hooks { long } => hooks::list::list_hooks(&paths, *long, cli.json),
-            cli::ListTarget::Agents {
-                long,
-                tool: _,
-                model: _,
-            } => agents::list::list_agents(&paths, *long, cli.json),
+            cli::ListTarget::Agents { long } => agents::list::list_agents(&paths, *long, cli.json),
         },
 
         Command::Validate { what } => {
             let target = what.as_ref().unwrap_or(&cli::ValidateTarget::Hooks {
-                check_scripts: false,
+                check_scripts: true,
             });
             match target {
-                cli::ValidateTarget::Rules { strict: _ } => rules::validate::validate_rules(&paths),
+                cli::ValidateTarget::Rules { .. } => rules::validate::validate_rules(&paths),
                 cli::ValidateTarget::Hooks { check_scripts } => {
                     hooks::validate::validate_hooks(&paths, *check_scripts)
                 }
@@ -63,21 +57,6 @@ fn main() {
         Command::Doctor => doctor::run_doctor(&paths),
 
         Command::Health { action } => run_health(&paths, action, cli.json),
-
-        Command::Canary { action: _ } => {
-            println!("{}", "Canary management coming in Phase 2".dimmed());
-            Ok(())
-        }
-
-        Command::Memory { action: _ } => {
-            println!("{}", "Memory management coming in Phase 3".dimmed());
-            Ok(())
-        }
-
-        Command::Completion { shell: _ } => {
-            println!("{}", "Shell completions coming soon".dimmed());
-            Ok(())
-        }
     };
 
     if let Err(e) = result {
@@ -418,7 +397,7 @@ fn find_session_by_id(
     session_id: &str,
 ) -> crate::error::EccResult<std::path::PathBuf> {
     for entry in walkdir::WalkDir::new(projects_dir)
-        .max_depth(2)
+        .max_depth(10)
         .into_iter()
         .filter_map(|e| e.ok())
     {

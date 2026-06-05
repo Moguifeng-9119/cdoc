@@ -52,24 +52,6 @@ pub enum Command {
         #[command(subcommand)]
         action: HealthAction,
     },
-
-    /// Manage canary patterns for forgetting detection
-    Canary {
-        #[command(subcommand)]
-        action: CanaryAction,
-    },
-
-    /// Extended memory management
-    Memory {
-        #[command(subcommand)]
-        action: MemoryAction,
-    },
-
-    /// Generate shell completions (bash, zsh, fish, powershell)
-    Completion {
-        /// Shell name
-        shell: String,
-    },
 }
 
 #[derive(Subcommand)]
@@ -79,10 +61,6 @@ pub enum ListTarget {
         /// Show extended details (extends, cross-refs, skills)
         #[arg(long)]
         long: bool,
-
-        /// Filter by category name
-        #[arg(long)]
-        category: Option<String>,
     },
     /// List installed skills
     Skills {
