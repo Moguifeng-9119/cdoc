@@ -98,6 +98,28 @@ pattern = "某个正则模式"
 max_miss = 5
 ```
 
+## 故障排除
+
+### "Claude config directory not found"
+
+CDoc 需要 `~/.claude/` 目录存在。如果尚未使用过 Claude Code，先运行一次 `claude` 初始化。
+
+### "No sessions found"
+
+会话文件在 `~/.claude/projects/` 下。如果该目录为空，说明还没有过 Claude Code 会话。
+
+### 部分会话分析失败
+
+`cdoc health project` 会跳过损坏的会话文件并显示 `✗`。用 `cdoc health session <ID>` 单独分析可查看具体错误。
+
+### 会话日志损坏
+
+如果看到 "Malformed lines: N" 警告，说明会话 JSONL 文件有损坏行。CDoc 会自动跳过坏行继续分析，通常不影响结果。严重时可删除对应的 `.jsonl` 文件（会丢失该会话的统计）。
+
+### Windows 路径问题
+
+CDoc 使用 `dirs` crate 自动检测系统路径。Windows 下 Claude Code 配置通常在 `C:\Users\<user>\.claude\`，CDoc 会自动定位。
+
 ## 技术栈
 
 Rust · clap · serde_json · regex · chrono · walkdir · colored · similar · toml
