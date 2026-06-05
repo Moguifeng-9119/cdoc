@@ -171,11 +171,25 @@ fn run_health(
             println!("   Polling every {}s. Press Ctrl+C to stop.", interval);
             println!();
 
+            let mut prev_msg_count = 0usize;
+            let mut prev_score = 0.0f64;
+
             loop {
                 let files = session::find_all_sessions(&paths.projects)?;
                 if let Some(latest) = files.last() {
                     match analyze_session(latest) {
                         Ok(report) => {
+                            let msg_count = report.session.message_count;
+                            let score = report.overall_score;
+
+                            if msg_count == prev_msg_count && (score - prev_score).abs() < 0.01 {
+                                // No change — skip output
+                                std::thread::sleep(std::time::Duration::from_secs(*interval));
+                                continue;
+                            }
+                            prev_msg_count = msg_count;
+                            prev_score = score;
+
                             let now = chrono::Local::now().format("%H:%M:%S").to_string();
                             let icon = match report.overall_status {
                                 HealthStatus::Healthy => "🟢",
@@ -184,7 +198,7 @@ fn run_health(
                             };
                             println!(
                                 "{} [{}] {} — score {:.2}",
-                                icon, now, report.session.session_id, report.overall_score
+                                icon, now, report.session.session_id, score
                             );
                             for sig in &report.signals {
                                 if sig.status != HealthStatus::Healthy {

@@ -28,7 +28,7 @@ impl HealthSignal for CacheRatioSignal {
             };
         }
 
-        let hit_rate = summary.total_cache_read as f64 / total_cache as f64;
+        let hit_rate = summary.total_cache_read as f64 / total_cache.max(1) as f64;
 
         let (status, score, detail) = if hit_rate > 0.7 {
             (
