@@ -1,5 +1,5 @@
-use cdoc::health::model::*;
-use cdoc::health::signals::*;
+use cc_doctor::health::model::*;
+use cc_doctor::health::signals::*;
 
 fn empty_summary() -> SessionSummary {
     SessionSummary {
@@ -204,7 +204,7 @@ fn all_signals_handle_null_model() {
 
 #[test]
 fn model_limits() {
-    use cdoc::health::signals::context_usage::ContextUsageSignal;
+    use cc_doctor::health::signals::context_usage::ContextUsageSignal;
     let sig = ContextUsageSignal;
 
     let cases = vec![

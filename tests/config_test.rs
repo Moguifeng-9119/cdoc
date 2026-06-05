@@ -1,4 +1,4 @@
-use cdoc::config::ClaudePaths;
+use cc_doctor::config::ClaudePaths;
 use std::path::PathBuf;
 
 fn claude_home() -> Option<PathBuf> {
@@ -48,7 +48,7 @@ fn projects_dir_if_present() {
         eprintln!("skipping: projects dir not found");
         return;
     }
-    let files = cdoc::health::session::find_all_sessions(&paths.projects).unwrap();
+    let files = cc_doctor::health::session::find_all_sessions(&paths.projects).unwrap();
     // CI may have zero sessions — that's fine, shouldn't panic
     eprintln!("found {} session files", files.len());
 }
@@ -57,7 +57,7 @@ fn projects_dir_if_present() {
 fn session_search_does_not_panic() {
     // Test with a nonexistent path — should return error, not panic
     let nonexistent = std::path::PathBuf::from("/nonexistent/path/for/testing");
-    let result = cdoc::health::session::find_all_sessions(&nonexistent);
+    let result = cc_doctor::health::session::find_all_sessions(&nonexistent);
     // WalkDir gracefully handles nonexistent paths by returning empty
     assert!(result.is_ok());
 }
@@ -65,7 +65,7 @@ fn session_search_does_not_panic() {
 #[test]
 fn project_session_search_handles_nonexistent() {
     let nonexistent = std::path::PathBuf::from("/nonexistent/project");
-    let result = cdoc::health::session::find_project_sessions(&nonexistent);
+    let result = cc_doctor::health::session::find_project_sessions(&nonexistent);
     assert!(result.is_ok());
     assert!(result.unwrap().is_empty());
 }
