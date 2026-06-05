@@ -423,12 +423,11 @@ fn find_session_by_id(
         .filter_map(|e| e.ok())
     {
         let p = entry.path();
-        if p.extension().is_some_and(|e| e == "jsonl") {
-            if p.file_stem()
+        if p.extension().is_some_and(|e| e == "jsonl")
+            && p.file_stem()
                 .is_some_and(|s| s.to_string_lossy().starts_with(session_id))
-            {
-                return Ok(p.to_path_buf());
-            }
+        {
+            return Ok(p.to_path_buf());
         }
     }
     Err(crate::error::EccError::SessionNotFound(session_id.into()))
