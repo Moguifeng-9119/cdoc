@@ -107,7 +107,7 @@ fn validate_command(
     // Basic: check for balanced quotes
     let double_quotes = command.matches('"').count();
     let single_quotes = command.matches('\'').count();
-    if double_quotes % 2 != 0 || single_quotes % 2 != 0 {
+    if !double_quotes.is_multiple_of(2) || !single_quotes.is_multiple_of(2) {
         output::warn(&format!(
             "[{}] {}: possibly unbalanced quotes",
             source, event

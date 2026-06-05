@@ -80,7 +80,7 @@ pub fn list_hooks(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()> 
     for config in &all_configs {
         println!("  [{}]", config.source.to_string().bold());
         let mut events: Vec<_> = config.events.iter().collect();
-        events.sort_by(|(a, _), (b, _)| a.cmp(b));
+        events.sort_by_key(|(event, _)| *event);
 
         for (event, matchers) in events {
             println!("    {:<20} {} matcher(s)", event.cyan(), matchers.len());

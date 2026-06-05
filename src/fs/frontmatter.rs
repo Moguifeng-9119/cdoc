@@ -36,11 +36,7 @@ pub fn parse_frontmatter(content: &str) -> EccResult<MarkdownWithFrontmatter> {
         }
 
         if let Some(end_idx) = end {
-            let fm_text: String = lines[1..end_idx]
-                .iter()
-                .map(|s| *s)
-                .collect::<Vec<&str>>()
-                .join("\n");
+            let fm_text: String = lines[1..end_idx].join("\n");
 
             let frontmatter: YamlValue = serde_yaml::from_str(&fm_text)?;
 
