@@ -44,10 +44,8 @@ pub fn parse_frontmatter(content: &str) -> EccResult<MarkdownWithFrontmatter> {
 
             let frontmatter: YamlValue = serde_yaml::from_str(&fm_text)?;
 
-            let body_lines: Vec<String> = lines[end_idx + 1..]
-                .iter()
-                .map(|s| s.to_string())
-                .collect();
+            let body_lines: Vec<String> =
+                lines[end_idx + 1..].iter().map(|s| s.to_string()).collect();
             let body = body_lines.join("\n");
 
             return Ok(MarkdownWithFrontmatter {

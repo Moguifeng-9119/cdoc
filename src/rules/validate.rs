@@ -65,17 +65,11 @@ pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
                     checks += 1;
                     let target = caps.get(2).unwrap().as_str();
                     // Resolve relative to the rule file's directory
-                    let resolved = file_path
-                        .parent()
-                        .unwrap()
-                        .join(target);
+                    let resolved = file_path.parent().unwrap().join(target);
                     if !RealFileSystem::exists(&resolved) {
                         output::status(
                             false,
-                            &format!(
-                                "{}/{}: broken extends link → {}",
-                                cat_name, fname, target
-                            ),
+                            &format!("{}/{}: broken extends link → {}", cat_name, fname, target),
                         );
                         issues += 1;
                     }
@@ -83,8 +77,7 @@ pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
             }
 
             // Check skill refs
-            let skill_re =
-                regex::Regex::new(r"See skill:\s*`?([a-zA-Z0-9_-]+)`?").unwrap();
+            let skill_re = regex::Regex::new(r"See skill:\s*`?([a-zA-Z0-9_-]+)`?").unwrap();
             for line in &parsed.body_lines {
                 for caps in skill_re.captures_iter(line) {
                     checks += 1;
@@ -94,10 +87,7 @@ pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
                     if !RealFileSystem::exists(&skill_md) {
                         output::status(
                             false,
-                            &format!(
-                                "{}/{}: missing skill → {}",
-                                cat_name, fname, skill_name
-                            ),
+                            &format!("{}/{}: missing skill → {}", cat_name, fname, skill_name),
                         );
                         issues += 1;
                     }
@@ -110,10 +100,7 @@ pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
     if issues == 0 {
         output::status(true, &format!("All {} checks passed", checks));
     } else {
-        output::warn(&format!(
-            "{} issue(s) found in {} checks",
-            issues, checks
-        ));
+        output::warn(&format!("{} issue(s) found in {} checks", issues, checks));
     }
 
     Ok(())

@@ -80,10 +80,7 @@ pub fn list_skills(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()>
     }
 
     output::header("Skills");
-    println!(
-        "  {} skills installed",
-        skills.len().to_string().dimmed()
-    );
+    println!("  {} skills installed", skills.len().to_string().dimmed());
     output::hr();
 
     for skill in &skills {
@@ -93,7 +90,12 @@ pub fn list_skills(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()>
             String::new()
         };
 
-        println!("  {:<25} {}{}", skill.name.bold().cyan(), skill.description.dimmed(), extra);
+        println!(
+            "  {:<25} {}{}",
+            skill.name.bold().cyan(),
+            skill.description.dimmed(),
+            extra
+        );
 
         if long {
             println!("    {} files", skill.file_count.to_string().dimmed());

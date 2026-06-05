@@ -68,12 +68,7 @@ fn check_dir(name: &str, path: &std::path::Path) {
 
 fn count_dirs(path: &std::path::Path) -> usize {
     RealFileSystem::read_dir_entries(path)
-        .map(|entries| {
-            entries
-                .iter()
-                .filter(|e| RealFileSystem::is_dir(e))
-                .count()
-        })
+        .map(|entries| entries.iter().filter(|e| RealFileSystem::is_dir(e)).count())
         .unwrap_or(0)
 }
 
@@ -95,7 +90,7 @@ fn count_files(path: &std::path::Path, ext: &str) -> usize {
         .map(|entries| {
             entries
                 .iter()
-                .filter(|e| e.extension().map_or(false, |e| e == ext))
+                .filter(|e| e.extension().is_some_and(|e| e == ext))
                 .count()
         })
         .unwrap_or(0)
@@ -109,15 +104,12 @@ fn check_empty_rule_dirs(paths: &ClaudePaths) {
                     .map(|files| {
                         files
                             .iter()
-                            .filter(|f| f.extension().map_or(false, |e| e == "md"))
+                            .filter(|f| f.extension().is_some_and(|e| e == "md"))
                             .count()
                     })
                     .unwrap_or(0);
                 if mds == 0 {
-                    let name = entry
-                        .file_name()
-                        .unwrap_or_default()
-                        .to_string_lossy();
+                    let name = entry.file_name().unwrap_or_default().to_string_lossy();
                     output::warn(&format!("Empty rule category: {}", name));
                 }
             }
@@ -131,10 +123,7 @@ fn check_broken_skills(paths: &ClaudePaths) {
             if RealFileSystem::is_dir(entry) {
                 let skill_md = entry.join("SKILL.md");
                 if !RealFileSystem::exists(&skill_md) {
-                    let name = entry
-                        .file_name()
-                        .unwrap_or_default()
-                        .to_string_lossy();
+                    let name = entry.file_name().unwrap_or_default().to_string_lossy();
                     output::warn(&format!("Skill directory without SKILL.md: {}", name));
                 }
             }
@@ -150,10 +139,7 @@ fn check_broken_agents(paths: &ClaudePaths) {
             }
             if let Ok(content) = RealFileSystem::read_to_string(entry) {
                 if !content.starts_with("---") {
-                    let name = entry
-                        .file_stem()
-                        .unwrap_or_default()
-                        .to_string_lossy();
+                    let name = entry.file_stem().unwrap_or_default().to_string_lossy();
                     output::warn(&format!("Agent without frontmatter: {}", name));
                 }
             }
@@ -181,12 +167,12 @@ fn check_sessions(paths: &ClaudePaths) {
             if !RealFileSystem::is_dir(dir) {
                 continue;
             }
-            if dir.file_name().map_or(false, |n| n == "subagents") {
+            if dir.file_name().is_some_and(|n| n == "subagents") {
                 continue;
             }
             if let Ok(files) = RealFileSystem::read_dir_entries(dir) {
                 for file in &files {
-                    if file.extension().map_or(false, |e| e == "jsonl") {
+                    if file.extension().is_some_and(|e| e == "jsonl") {
                         total += 1;
                         // Quick check: first line is valid JSON?
                         if let Ok(content) = RealFileSystem::read_to_string(file) {

@@ -22,7 +22,11 @@ pub fn read_jsonl_lines(path: &Path) -> EccResult<Vec<Value>> {
         match serde_json::from_str::<Value>(trimmed) {
             Ok(v) => results.push(v),
             Err(e) => {
-                eprintln!("Warning: skipping malformed JSONL line in {}: {}", path.display(), e);
+                eprintln!(
+                    "Warning: skipping malformed JSONL line in {}: {}",
+                    path.display(),
+                    e
+                );
             }
         }
     }

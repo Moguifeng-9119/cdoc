@@ -58,22 +58,27 @@ impl HealthSignal for CorrectionsSignal {
         };
 
         let (status, score, detail) = if count == 0 {
-            (
-                HealthStatus::Healthy,
-                1.0,
-                "用户未发出纠正指令".into(),
-            )
+            (HealthStatus::Healthy, 1.0, "用户未发出纠正指令".into())
         } else if rate < 0.05 {
             (
                 HealthStatus::Healthy,
                 0.8,
-                format!("{} 次纠正 / {} 轮对话 = {:.1}%（正常）", count, summary.assistant_count, rate * 100.0),
+                format!(
+                    "{} 次纠正 / {} 轮对话 = {:.1}%（正常）",
+                    count,
+                    summary.assistant_count,
+                    rate * 100.0
+                ),
             )
         } else if rate < 0.10 {
             (
                 HealthStatus::Warning,
                 0.5,
-                format!("{} 次纠正（{:.1}%）— 用户频繁纠正，可能遗忘上下文", count, rate * 100.0),
+                format!(
+                    "{} 次纠正（{:.1}%）— 用户频繁纠正，可能遗忘上下文",
+                    count,
+                    rate * 100.0
+                ),
             )
         } else {
             (

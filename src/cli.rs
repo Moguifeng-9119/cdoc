@@ -1,7 +1,11 @@
 use clap::{Parser, Subcommand, ValueHint};
 
 #[derive(Parser)]
-#[command(name = "cdoc", about = "CDoc — CC Doctor (Claude Code Doctor): diagnose and manage rules, skills, hooks, agents, and session health", version)]
+#[command(
+    name = "cdoc",
+    about = "CDoc — CC Doctor (Claude Code Doctor): diagnose and manage rules, skills, hooks, agents, and session health",
+    version
+)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
@@ -182,13 +186,9 @@ pub enum CanaryAction {
     /// List all canary patterns
     List,
     /// Remove a canary pattern by name
-    Remove {
-        name: String,
-    },
+    Remove { name: String },
     /// Test canary patterns against a session
-    Test {
-        session_id: String,
-    },
+    Test { session_id: String },
 }
 
 #[derive(Subcommand)]
@@ -208,9 +208,7 @@ pub enum MemoryAction {
         tag: Option<String>,
     },
     /// Remove a memory entry by index
-    Remove {
-        index: usize,
-    },
+    Remove { index: usize },
     /// List all stored memories
     List {
         /// Filter by tag

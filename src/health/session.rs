@@ -187,10 +187,8 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
     let duration = if timestamps.len() >= 2 {
         let first = &timestamps[0];
         let last = &timestamps[timestamps.len() - 1];
-        let t1 = chrono::DateTime::parse_from_rfc3339(first)
-            .map(|d| d.with_timezone(&chrono::Utc));
-        let t2 = chrono::DateTime::parse_from_rfc3339(last)
-            .map(|d| d.with_timezone(&chrono::Utc));
+        let t1 = chrono::DateTime::parse_from_rfc3339(first).map(|d| d.with_timezone(&chrono::Utc));
+        let t2 = chrono::DateTime::parse_from_rfc3339(last).map(|d| d.with_timezone(&chrono::Utc));
         match (t1, t2) {
             (Ok(t1), Ok(t2)) => {
                 let dur = t2 - t1;
@@ -240,10 +238,10 @@ pub fn find_all_sessions(projects_dir: &Path) -> EccResult<Vec<std::path::PathBu
         .filter_map(|e| e.ok())
     {
         let p = entry.path();
-        if p.extension().map_or(false, |e| e == "jsonl") {
-            if p.parent().map_or(false, |parent| {
-                parent.file_name().map_or(false, |n| n == "subagents")
-            }) {
+        if p.extension().is_some_and(|e| e == "jsonl") {
+            if p.parent()
+                .is_some_and(|parent| parent.file_name().is_some_and(|n| n == "subagents"))
+            {
                 continue;
             }
             files.push(p.to_path_buf());
@@ -267,10 +265,10 @@ pub fn find_project_sessions(project_dir: &Path) -> EccResult<Vec<std::path::Pat
         .filter_map(|e| e.ok())
     {
         let p = entry.path();
-        if p.extension().map_or(false, |e| e == "jsonl") {
-            if p.parent().map_or(false, |parent| {
-                parent.file_name().map_or(false, |n| n == "subagents")
-            }) {
+        if p.extension().is_some_and(|e| e == "jsonl") {
+            if p.parent()
+                .is_some_and(|parent| parent.file_name().is_some_and(|n| n == "subagents"))
+            {
                 continue;
             }
             files.push(p.to_path_buf());

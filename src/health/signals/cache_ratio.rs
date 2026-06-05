@@ -34,7 +34,12 @@ impl HealthSignal for CacheRatioSignal {
             (
                 HealthStatus::Healthy,
                 1.0,
-                format!("命中率 {:.0}%（{}/{}）正常", hit_rate * 100.0, summary.total_cache_read / 1000, (summary.total_cache_read + summary.total_cache_creation) / 1000),
+                format!(
+                    "命中率 {:.0}%（{}/{}）正常",
+                    hit_rate * 100.0,
+                    summary.total_cache_read / 1000,
+                    (summary.total_cache_read + summary.total_cache_creation) / 1000
+                ),
             )
         } else if hit_rate > 0.4 {
             (

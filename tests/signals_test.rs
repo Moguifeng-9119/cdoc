@@ -49,10 +49,7 @@ fn canary_empty_session_is_healthy() {
 #[test]
 fn canary_consistent_greeting_survives() {
     let sig = CanarySignal::default();
-    let s = summary_with_text(
-        vec!["曼波~ 你好", "曼波~ 好的", "曼波~ 没问题"],
-        vec![],
-    );
+    let s = summary_with_text(vec!["曼波~ 你好", "曼波~ 好的", "曼波~ 没问题"], vec![]);
     let result = sig.analyze(&s);
     assert_eq!(result.status, HealthStatus::Healthy);
     assert!(result.score > 0.8);

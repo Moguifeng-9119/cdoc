@@ -94,11 +94,7 @@ pub fn show_stats(paths: &ClaudePaths, json: bool) -> EccResult<()> {
     } else {
         "not found".into()
     };
-    println!(
-        "  {:<20} {}",
-        "History".bold(),
-        history_info.dimmed()
-    );
+    println!("  {:<20} {}", "History".bold(), history_info.dimmed());
 
     println!();
     Ok(())
@@ -112,7 +108,10 @@ fn count_rules(paths: &ClaudePaths) -> (usize, usize) {
             if RealFileSystem::is_dir(entry) {
                 cats += 1;
                 if let Ok(f) = RealFileSystem::read_dir_entries(entry) {
-                    files += f.iter().filter(|p| p.extension().map_or(false, |e| e == "md")).count();
+                    files += f
+                        .iter()
+                        .filter(|p| p.extension().is_some_and(|e| e == "md"))
+                        .count();
                 }
             }
         }
@@ -124,9 +123,7 @@ fn count_skills(paths: &ClaudePaths) -> usize {
     if let Ok(entries) = RealFileSystem::read_dir_entries(&paths.skills) {
         entries
             .iter()
-            .filter(|e| {
-                RealFileSystem::is_dir(e) && RealFileSystem::exists(&e.join("SKILL.md"))
-            })
+            .filter(|e| RealFileSystem::is_dir(e) && RealFileSystem::exists(&e.join("SKILL.md")))
             .count()
     } else {
         0
@@ -137,7 +134,7 @@ fn count_agents(paths: &ClaudePaths) -> usize {
     if let Ok(entries) = RealFileSystem::read_dir_entries(&paths.agents) {
         entries
             .iter()
-            .filter(|e| e.extension().map_or(false, |ext| ext == "md"))
+            .filter(|e| e.extension().is_some_and(|ext| ext == "md"))
             .count()
     } else {
         0
@@ -176,8 +173,7 @@ fn count_hooks(paths: &ClaudePaths) -> (usize, usize) {
                         for (_, matchers) in obj {
                             if let Some(arr) = matchers.as_array() {
                                 for m in arr {
-                                    if let Some(cmds) = m.get("hooks").and_then(|h| h.as_array())
-                                    {
+                                    if let Some(cmds) = m.get("hooks").and_then(|h| h.as_array()) {
                                         total += cmds.len();
                                     }
                                 }
@@ -202,12 +198,12 @@ fn count_sessions(paths: &ClaudePaths) -> (usize, u64) {
                 continue;
             }
             // Skip subagents directory
-            if dir.file_name().map_or(false, |n| n == "subagents") {
+            if dir.file_name().is_some_and(|n| n == "subagents") {
                 continue;
             }
             if let Ok(files) = RealFileSystem::read_dir_entries(dir) {
                 for file in &files {
-                    if file.extension().map_or(false, |e| e == "jsonl") {
+                    if file.extension().is_some_and(|e| e == "jsonl") {
                         count += 1;
                         total_size += RealFileSystem::file_size(file).unwrap_or(0);
                     }

@@ -133,7 +133,10 @@ pub fn list_rules(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()> 
     output::header("Rules");
 
     let total_files: usize = categories.iter().map(|c| c.files.len()).sum();
-    let total_size: u64 = categories.iter().flat_map(|c| c.files.iter().map(|f| f.size)).sum();
+    let total_size: u64 = categories
+        .iter()
+        .flat_map(|c| c.files.iter().map(|f| f.size))
+        .sum();
     println!(
         "  {} categories, {} files, {}",
         categories.len(),

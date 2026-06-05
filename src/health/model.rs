@@ -93,7 +93,13 @@ impl ContentBlock {
     }
 
     pub fn is_tool_error(&self) -> bool {
-        matches!(self, ContentBlock::ToolResult { is_error: Some(true), .. })
+        matches!(
+            self,
+            ContentBlock::ToolResult {
+                is_error: Some(true),
+                ..
+            }
+        )
     }
 }
 
@@ -177,9 +183,13 @@ pub enum HealthStatus {
 
 impl HealthStatus {
     pub fn from_score(s: f64) -> Self {
-        if s >= 0.7 { HealthStatus::Healthy }
-        else if s >= 0.4 { HealthStatus::Warning }
-        else { HealthStatus::Critical }
+        if s >= 0.7 {
+            HealthStatus::Healthy
+        } else if s >= 0.4 {
+            HealthStatus::Warning
+        } else {
+            HealthStatus::Critical
+        }
     }
 }
 
@@ -211,14 +221,22 @@ pub fn lev_distance(a: &str, b: &str) -> usize {
     let b_chars: Vec<char> = b.chars().collect();
     let n = a_chars.len();
     let m = b_chars.len();
-    if n == 0 { return m; }
-    if m == 0 { return n; }
+    if n == 0 {
+        return m;
+    }
+    if m == 0 {
+        return n;
+    }
     let mut prev: Vec<usize> = (0..=m).collect();
     let mut curr = vec![0; m + 1];
     for i in 1..=n {
         curr[0] = i;
         for j in 1..=m {
-            let cost = if a_chars[i - 1] == b_chars[j - 1] { 0 } else { 1 };
+            let cost = if a_chars[i - 1] == b_chars[j - 1] {
+                0
+            } else {
+                1
+            };
             curr[j] = (prev[j] + 1).min(curr[j - 1] + 1).min(prev[j - 1] + cost);
         }
         std::mem::swap(&mut prev, &mut curr);

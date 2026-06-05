@@ -37,12 +37,8 @@ fn main() {
             cli::ListTarget::Rules { long, category: _ } => {
                 rules::list::list_rules(&paths, *long, cli.json)
             }
-            cli::ListTarget::Skills { long } => {
-                skills::list::list_skills(&paths, *long, cli.json)
-            }
-            cli::ListTarget::Hooks { long } => {
-                hooks::list::list_hooks(&paths, *long, cli.json)
-            }
+            cli::ListTarget::Skills { long } => skills::list::list_skills(&paths, *long, cli.json),
+            cli::ListTarget::Hooks { long } => hooks::list::list_hooks(&paths, *long, cli.json),
             cli::ListTarget::Agents {
                 long,
                 tool: _,
@@ -113,7 +109,11 @@ fn run_health(
             let latest = files.last().unwrap();
             print_health_report(latest, json)?;
         }
-        HealthAction::Project { dir, limit, last_days } => {
+        HealthAction::Project {
+            dir,
+            limit,
+            last_days,
+        } => {
             let project_dir = PathBuf::from(dir);
             let mut files = session::find_project_sessions(&project_dir)?;
 
@@ -183,13 +183,13 @@ fn run_health(
                 );
             }
         }
-        HealthAction::Watch { interval, project: _ } => {
+        HealthAction::Watch {
+            interval,
+            project: _,
+        } => {
             println!();
             println!("{}  Watching for health issues...", "👀".bold());
-            println!(
-                "   Polling every {}s. Press Ctrl+C to stop.",
-                interval
-            );
+            println!("   Polling every {}s. Press Ctrl+C to stop.", interval);
             println!();
 
             loop {
@@ -205,14 +205,12 @@ fn run_health(
                             };
                             println!(
                                 "{} [{}] {} — score {:.2}",
-                                icon,
-                                now,
-                                report.session.session_id,
-                                report.overall_score
+                                icon, now, report.session.session_id, report.overall_score
                             );
                             for sig in &report.signals {
                                 if sig.status != HealthStatus::Healthy {
-                                    println!("     {} {}: {}",
+                                    println!(
+                                        "     {} {}: {}",
                                         match sig.status {
                                             HealthStatus::Critical => "🔴",
                                             HealthStatus::Warning => "🟡",
@@ -232,7 +230,10 @@ fn run_health(
                 std::thread::sleep(std::time::Duration::from_secs(*interval));
             }
         }
-        HealthAction::Report { output: out, format } => {
+        HealthAction::Report {
+            output: out,
+            format,
+        } => {
             let files = session::find_all_sessions(&paths.projects)?;
             if files.is_empty() {
                 eprintln!("No sessions found");
@@ -337,12 +338,7 @@ fn format_text_report(report: &health::model::HealthReport) -> String {
     let mut buf = String::new();
 
     let _ = writeln!(buf);
-    let _ = writeln!(
-        buf,
-        "{}  Session Health: {}",
-        "🔍".bold(),
-        s.session_id
-    );
+    let _ = writeln!(buf, "{}  Session Health: {}", "🔍".bold(), s.session_id);
     let _ = writeln!(buf, "   {}", "─".repeat(50).dimmed());
 
     let dur = match s.duration_minutes {
@@ -427,9 +423,9 @@ fn find_session_by_id(
         .filter_map(|e| e.ok())
     {
         let p = entry.path();
-        if p.extension().map_or(false, |e| e == "jsonl") {
+        if p.extension().is_some_and(|e| e == "jsonl") {
             if p.file_stem()
-                .map_or(false, |s| s.to_string_lossy().starts_with(session_id))
+                .is_some_and(|s| s.to_string_lossy().starts_with(session_id))
             {
                 return Ok(p.to_path_buf());
             }

@@ -1,13 +1,13 @@
-mod canary;
 mod cache_ratio;
+mod canary;
 mod compaction;
 pub mod context_usage;
 mod corrections;
 mod error_rate;
 mod repeated;
 
-pub use canary::CanarySignal;
 pub use cache_ratio::CacheRatioSignal;
+pub use canary::CanarySignal;
 pub use compaction::CompactionSignal;
 pub use context_usage::ContextUsageSignal;
 pub use corrections::CorrectionsSignal;

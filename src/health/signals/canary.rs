@@ -53,10 +53,7 @@ fn load_custom_canaries() -> Vec<CanaryPattern> {
         .filter_map(|entry| {
             let name = entry.get("name")?.as_str()?.to_string();
             let pattern = entry.get("pattern")?.as_str()?;
-            let max_miss = entry
-                .get("max_miss")
-                .and_then(|v| v.as_i64())
-                .unwrap_or(5) as usize;
+            let max_miss = entry.get("max_miss").and_then(|v| v.as_i64()).unwrap_or(5) as usize;
             let regex = Regex::new(pattern).ok()?;
             Some(CanaryPattern {
                 name,
@@ -76,7 +73,8 @@ struct BehavioralBaseline {
 
 impl BehavioralBaseline {
     fn from_session(all_assistant_text: &[String]) -> Self {
-        let sample: Vec<&str> = all_assistant_text.iter()
+        let sample: Vec<&str> = all_assistant_text
+            .iter()
             .take(10)
             .map(|s| s.as_str())
             .collect();
@@ -93,13 +91,13 @@ impl BehavioralBaseline {
         let greeting = detect_greeting(&sample);
 
         // 2. Detect markdown usage in early responses
-        let uses_md = sample.iter().any(|s| s.contains("```") || s.contains("## ") || s.contains("**"));
+        let uses_md = sample
+            .iter()
+            .any(|s| s.contains("```") || s.contains("## ") || s.contains("**"));
 
         // 3. Detect language mix
         let n = sample.len().max(1);
-        let cn_ratio = sample.iter()
-            .map(|s| chinese_char_ratio(s))
-            .sum::<f64>() / n as f64;
+        let cn_ratio = sample.iter().map(|s| chinese_char_ratio(s)).sum::<f64>() / n as f64;
 
         Self {
             greeting_regex: greeting,
@@ -118,7 +116,8 @@ fn detect_greeting(samples: &[&str]) -> Option<Regex> {
     }
 
     // Look at first 3 non-empty responses, take first 20 chars safely
-    let openings: Vec<String> = samples.iter()
+    let openings: Vec<String> = samples
+        .iter()
         .filter(|s| !s.is_empty())
         .take(3)
         .map(|s| {
@@ -133,7 +132,8 @@ fn detect_greeting(samples: &[&str]) -> Option<Regex> {
 
     // Try to find a common prefix among at least 2 of the first 3
     for prefix_len in (3..=20).rev() {
-        let prefixes: Vec<&str> = openings.iter()
+        let prefixes: Vec<&str> = openings
+            .iter()
             .filter_map(|o| {
                 if o.chars().count() >= prefix_len {
                     Some(safe_prefix(o, prefix_len))
@@ -151,7 +151,19 @@ fn detect_greeting(samples: &[&str]) -> Option<Regex> {
         let first = prefixes[0];
         let matches = prefixes.iter().filter(|p| **p == first).count();
 
-        if matches >= 2 && first.chars().all(|c| c.is_alphanumeric() || c == '~' || c == '～' || c == '-' || c == ':' || c == '/' || c == '(' || c == ')' || c == ' ') {
+        if matches >= 2
+            && first.chars().all(|c| {
+                c.is_alphanumeric()
+                    || c == '~'
+                    || c == '～'
+                    || c == '-'
+                    || c == ':'
+                    || c == '/'
+                    || c == '('
+                    || c == ')'
+                    || c == ' '
+            })
+        {
             let escaped = regex::escape(first);
             return Regex::new(&escaped).ok();
         }
@@ -161,10 +173,7 @@ fn detect_greeting(samples: &[&str]) -> Option<Regex> {
 }
 
 fn safe_prefix(s: &str, n: usize) -> &str {
-    s.char_indices()
-        .nth(n)
-        .map(|(i, _)| &s[..i])
-        .unwrap_or(s)
+    s.char_indices().nth(n).map(|(i, _)| &s[..i]).unwrap_or(s)
 }
 
 /// Ratio of Chinese characters in a string (0.0 ~ 1.0).
@@ -173,9 +182,9 @@ fn chinese_char_ratio(text: &str) -> f64 {
     if total == 0 {
         return 0.0;
     }
-    let cn = text.chars()
-        .filter(|c| ('\u{4e00}'..='\u{9fff}').contains(c)
-                 || ('\u{3400}'..='\u{4dbf}').contains(c))
+    let cn = text
+        .chars()
+        .filter(|c| ('\u{4e00}'..='\u{9fff}').contains(c) || ('\u{3400}'..='\u{4dbf}').contains(c))
         .count();
     cn as f64 / total as f64
 }
@@ -229,12 +238,16 @@ impl HealthSignal for CanarySignal {
 
         // 3. Check language consistency
         if summary.all_assistant_text.len() > 20 {
-            let recent: Vec<&str> = summary.all_assistant_text.iter()
-                .rev().take(10).map(|s| s.as_str()).collect();
+            let recent: Vec<&str> = summary
+                .all_assistant_text
+                .iter()
+                .rev()
+                .take(10)
+                .map(|s| s.as_str())
+                .collect();
             let recent_n = recent.len().max(1);
-            let recent_cn_ratio = recent.iter()
-                .map(|s| chinese_char_ratio(s))
-                .sum::<f64>() / recent_n as f64;
+            let recent_cn_ratio =
+                recent.iter().map(|s| chinese_char_ratio(s)).sum::<f64>() / recent_n as f64;
 
             if baseline.chinese_ratio > 0.1 && recent_cn_ratio < 0.02 {
                 issues.push("中文输出突然消失，可能切换到纯英文模式".into());
@@ -247,8 +260,11 @@ impl HealthSignal for CanarySignal {
 
         // 4. Check markdown usage consistency
         if baseline.uses_markdown {
-            let recent_has_md = summary.all_assistant_text.iter()
-                .rev().take(10)
+            let recent_has_md = summary
+                .all_assistant_text
+                .iter()
+                .rev()
+                .take(10)
                 .any(|s| s.contains("```") || s.contains("## ") || s.contains("**"));
             if !recent_has_md && summary.all_assistant_text.len() > 20 {
                 issues.push("Markdown 格式突然消失".into());

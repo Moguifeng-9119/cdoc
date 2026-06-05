@@ -16,7 +16,11 @@ fn model_context_limit(model: &Option<String>) -> u64 {
         || name.contains("claude-opus-4-6")
         || name.contains("claude-sonnet-4-6")
         || name.contains("claude-sonnet-4-5")
-        || (name.contains("claude-sonnet") && (name.contains("4.6") || name.contains("4.5") || name.contains("4-6") || name.contains("4-5")))
+        || (name.contains("claude-sonnet")
+            && (name.contains("4.6")
+                || name.contains("4.5")
+                || name.contains("4-6")
+                || name.contains("4-5")))
         || name.contains("deepseek-v4")
         || name.contains("minimax-m3")
         || name.contains("minimax-m2.5")
@@ -135,31 +139,56 @@ impl HealthSignal for ContextUsageSignal {
             (
                 HealthStatus::Healthy,
                 1.0,
-                format!("峰值 {} / {} ({}%) 充足", peak_str, limit_str, (pct * 100.0) as u32),
+                format!(
+                    "峰值 {} / {} ({}%) 充足",
+                    peak_str,
+                    limit_str,
+                    (pct * 100.0) as u32
+                ),
             )
         } else if pct < 0.75 {
             (
                 HealthStatus::Healthy,
                 0.8,
-                format!("峰值 {} / {} ({}%) 偏高", peak_str, limit_str, (pct * 100.0) as u32),
+                format!(
+                    "峰值 {} / {} ({}%) 偏高",
+                    peak_str,
+                    limit_str,
+                    (pct * 100.0) as u32
+                ),
             )
         } else if pct < 0.90 {
             (
                 HealthStatus::Warning,
                 0.5,
-                format!("峰值 {} / {} ({}%) 接近上限，可能触发压缩", peak_str, limit_str, (pct * 100.0) as u32),
+                format!(
+                    "峰值 {} / {} ({}%) 接近上限，可能触发压缩",
+                    peak_str,
+                    limit_str,
+                    (pct * 100.0) as u32
+                ),
             )
         } else if pct <= 1.0 {
             (
                 HealthStatus::Critical,
                 0.2,
-                format!("峰值 {} / {} ({}%) 已达上限！", peak_str, limit_str, (pct * 100.0) as u32),
+                format!(
+                    "峰值 {} / {} ({}%) 已达上限！",
+                    peak_str,
+                    limit_str,
+                    (pct * 100.0) as u32
+                ),
             )
         } else {
             (
                 HealthStatus::Critical,
                 0.15,
-                format!("峰值 {} / {} ({}%) 超出上限！", peak_str, limit_str, (pct * 100.0) as u32),
+                format!(
+                    "峰值 {} / {} ({}%) 超出上限！",
+                    peak_str,
+                    limit_str,
+                    (pct * 100.0) as u32
+                ),
             )
         };
 

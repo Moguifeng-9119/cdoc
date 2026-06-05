@@ -50,11 +50,7 @@ impl HealthSignal for RepeatedSignal {
         }
 
         let (status, score, detail) = if repeats == 0 {
-            (
-                HealthStatus::Healthy,
-                1.0,
-                "未检测到重复指令".into(),
-            )
+            (HealthStatus::Healthy, 1.0, "未检测到重复指令".into())
         } else if repeats <= 2 {
             (
                 HealthStatus::Healthy,

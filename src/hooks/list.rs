@@ -86,7 +86,11 @@ pub fn list_hooks(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()> 
             println!("    {:<20} {} matcher(s)", event.cyan(), matchers.len());
             if long {
                 for m in matchers {
-                    println!("      when: {:<20} {} hook(s)", m.matcher.yellow(), m.hooks.len());
+                    println!(
+                        "      when: {:<20} {} hook(s)",
+                        m.matcher.yellow(),
+                        m.hooks.len()
+                    );
                     for h in &m.hooks {
                         let preview = truncate_cmd(&h.command, 80);
                         println!("        $ {}", preview.dimmed());

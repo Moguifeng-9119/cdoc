@@ -34,10 +34,7 @@ impl HealthSignal for CompactionSignal {
             (
                 HealthStatus::Critical,
                 0.2,
-                format!(
-                    "检测到 {} 次压缩！关键指令可能已被挤出上下文窗口",
-                    count
-                ),
+                format!("检测到 {} 次压缩！关键指令可能已被挤出上下文窗口", count),
             )
         };
 

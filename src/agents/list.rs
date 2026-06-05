@@ -1,9 +1,9 @@
+use crate::agents::model::Agent;
 use crate::config::ClaudePaths;
 use crate::error::EccResult;
 use crate::fs::frontmatter::{parse_frontmatter, AgentFrontmatter};
 use crate::fs::RealFileSystem;
 use crate::output;
-use crate::agents::model::Agent;
 use colored::Colorize;
 
 pub fn list_agents(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()> {
@@ -76,10 +76,7 @@ pub fn list_agents(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()>
     }
 
     output::header("Agents");
-    println!(
-        "  {} agents installed",
-        agents.len().to_string().dimmed()
-    );
+    println!("  {} agents installed", agents.len().to_string().dimmed());
     output::hr();
 
     for agent in &agents {

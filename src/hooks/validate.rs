@@ -83,10 +83,7 @@ pub fn validate_hooks(paths: &ClaudePaths, check_scripts: bool) -> EccResult<()>
     if issues == 0 {
         output::status(true, &format!("All {} hooks validated", total));
     } else {
-        output::warn(&format!(
-            "{} issue(s) found in {} hooks",
-            issues, total
-        ));
+        output::warn(&format!("{} issue(s) found in {} hooks", issues, total));
     }
 
     Ok(())
