@@ -76,25 +76,13 @@ pub enum ListTarget {
     Agents {
         #[arg(long)]
         long: bool,
-
-        /// Filter by tool name
-        #[arg(long)]
-        tool: Option<String>,
-
-        /// Filter by model
-        #[arg(long)]
-        model: Option<String>,
     },
 }
 
 #[derive(Subcommand)]
 pub enum ValidateTarget {
     /// Validate cross-references in rules
-    Rules {
-        /// Strict mode: treat warnings as errors
-        #[arg(long)]
-        strict: bool,
-    },
+    Rules {},
     /// Validate hook syntax and script existence
     Hooks {
         /// Check that referenced scripts exist on disk
