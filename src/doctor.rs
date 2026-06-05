@@ -122,10 +122,19 @@ fn check_broken_skills(paths: &ClaudePaths) {
         for entry in &entries {
             if RealFileSystem::is_dir(entry) {
                 let skill_md = entry.join("SKILL.md");
-                if !RealFileSystem::exists(&skill_md) {
-                    let name = entry.file_name().unwrap_or_default().to_string_lossy();
-                    output::warn(&format!("Skill directory without SKILL.md: {}", name));
+                if RealFileSystem::exists(&skill_md) {
+                    continue;
                 }
+                // Collection-style install: subdirectories have their own SKILL.md
+                if let Ok(subs) = RealFileSystem::read_dir_entries(entry) {
+                    if subs.iter().any(|s| {
+                        RealFileSystem::is_dir(s) && RealFileSystem::exists(&s.join("SKILL.md"))
+                    }) {
+                        continue;
+                    }
+                }
+                let name = entry.file_name().unwrap_or_default().to_string_lossy();
+                output::warn(&format!("Skill directory without SKILL.md: {}", name));
             }
         }
     }
