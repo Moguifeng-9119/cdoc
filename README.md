@@ -21,6 +21,12 @@ it early.
 ## Install
 
 ```bash
+cargo install cdoc
+```
+
+Or build from source:
+
+```bash
 cargo install --git https://github.com/Moguifeng-9119/cdoc
 ```
 
