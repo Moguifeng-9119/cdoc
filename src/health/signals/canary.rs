@@ -96,9 +96,10 @@ impl BehavioralBaseline {
         let uses_md = sample.iter().any(|s| s.contains("```") || s.contains("## ") || s.contains("**"));
 
         // 3. Detect language mix
+        let n = sample.len().max(1);
         let cn_ratio = sample.iter()
             .map(|s| chinese_char_ratio(s))
-            .sum::<f64>() / sample.len() as f64;
+            .sum::<f64>() / n as f64;
 
         Self {
             greeting_regex: greeting,
@@ -230,9 +231,10 @@ impl HealthSignal for CanarySignal {
         if summary.all_assistant_text.len() > 20 {
             let recent: Vec<&str> = summary.all_assistant_text.iter()
                 .rev().take(10).map(|s| s.as_str()).collect();
+            let recent_n = recent.len().max(1);
             let recent_cn_ratio = recent.iter()
                 .map(|s| chinese_char_ratio(s))
-                .sum::<f64>() / recent.len() as f64;
+                .sum::<f64>() / recent_n as f64;
 
             if baseline.chinese_ratio > 0.1 && recent_cn_ratio < 0.02 {
                 issues.push("中文输出突然消失，可能切换到纯英文模式".into());

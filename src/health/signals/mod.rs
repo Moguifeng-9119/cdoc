@@ -1,7 +1,7 @@
 mod canary;
 mod cache_ratio;
 mod compaction;
-mod context_usage;
+pub mod context_usage;
 mod corrections;
 mod error_rate;
 mod repeated;

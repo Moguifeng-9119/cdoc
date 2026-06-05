@@ -371,6 +371,14 @@ fn format_text_report(report: &health::model::HealthReport) -> String {
     if let Some(ref cwd) = s.cwd {
         let _ = writeln!(buf, "   CWD: {}", cwd);
     }
+    if s.malformed_lines > 0 {
+        let _ = writeln!(
+            buf,
+            "   {} Malformed lines: {} — session log may be corrupted",
+            "⚠".yellow(),
+            s.malformed_lines
+        );
+    }
 
     let _ = writeln!(buf);
     let _ = writeln!(buf, "{}", "  Signals".bold());

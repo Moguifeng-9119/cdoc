@@ -8,7 +8,16 @@ use crate::fs::RealFileSystem;
 use super::model::*;
 
 pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
-    let reader = RealFileSystem::open_buffered(path)?;
+    let reader = match RealFileSystem::open_buffered(path) {
+        Ok(r) => r,
+        Err(e) => {
+            return Err(crate::error::EccError::Other(format!(
+                "Cannot read session file {}: {}. Check file permissions.",
+                path.display(),
+                e
+            )));
+        }
+    };
 
     let mut message_count = 0;
     let mut assistant_count = 0;
@@ -26,16 +35,27 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
     let mut model_name: Option<String> = None;
     let mut cwd: Option<String> = None;
     let mut version: Option<String> = None;
+    let mut malformed_lines: usize = 0;
+    let mut file_errors: Vec<String> = Vec::new();
+    let max_errors = 5; // cap error messages to avoid bloat
 
     let mut prev_input_tokens: u64 = 0;
     let mut timestamps: Vec<String> = Vec::new();
-    let mut seen_tool_ids: HashSet<String> = HashSet::new();
     let mut error_tool_ids: HashSet<String> = HashSet::new();
 
+    let mut line_num: usize = 0;
+
     for line in reader.lines() {
+        line_num += 1;
         let line = match line {
             Ok(l) => l,
-            Err(_) => continue,
+            Err(e) => {
+                malformed_lines += 1;
+                if file_errors.len() < max_errors {
+                    file_errors.push(format!("Line {}: read error: {}", line_num, e));
+                }
+                continue;
+            }
         };
         let trimmed = line.trim();
         if trimmed.is_empty() {
@@ -44,7 +64,18 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
 
         let event: JsonlEvent = match serde_json::from_str(trimmed) {
             Ok(e) => e,
-            Err(_) => continue,
+            Err(e) => {
+                malformed_lines += 1;
+                if file_errors.len() < max_errors {
+                    let preview: String = trimmed.chars().take(80).collect();
+                    file_errors.push(format!(
+                        "Line {}: invalid JSON in session log — consider deleting this session file: {}",
+                        line_num, preview
+                    ));
+                    let _ = e; // suppress unused warning
+                }
+                continue;
+            }
         };
 
         // Capture metadata once
@@ -73,21 +104,18 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
                         model_name = msg.model.clone();
                     }
 
-                    // Parse content blocks
                     let blocks = parse_content_blocks(&msg.content);
                     let texts = extract_assistant_text(&blocks);
                     let thoughts = extract_thinking_text(&blocks);
                     all_assistant_text.extend(texts);
                     all_assistant_text.extend(thoughts);
 
-                    // Count tool calls
                     for block in &blocks {
                         if matches!(block, ContentBlock::ToolUse { .. }) {
                             tool_call_count += 1;
                         }
                     }
 
-                    // Token tracking
                     if let Some(ref u) = msg.usage {
                         total_input_tokens += u.input_tokens;
                         total_output_tokens += u.output_tokens;
@@ -98,7 +126,6 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
                             peak_input_tokens = u.input_tokens;
                         }
 
-                        // Compaction detection: >40% drop, only for significant previous values
                         let floor = (peak_input_tokens / 4).max(50000);
                         if prev_input_tokens > floor
                             && u.input_tokens > 0
@@ -122,7 +149,6 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
                         }
                         serde_json::Value::Array(arr) => {
                             for block in arr {
-                                // Tool results inside user messages
                                 if let Ok(cb) =
                                     serde_json::from_value::<ContentBlock>(block.clone())
                                 {
@@ -136,12 +162,6 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
                                             if let Some(id) = tool_use_id {
                                                 error_tool_ids.insert(id);
                                             }
-                                        }
-                                        ContentBlock::ToolResult {
-                                            tool_use_id: Some(id),
-                                            ..
-                                        } => {
-                                            seen_tool_ids.insert(id);
                                         }
                                         ContentBlock::Text { text } => {
                                             user_messages.push(text);
@@ -160,9 +180,7 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
         }
     }
 
-    // Also count tool errors by error flag
     if tool_error_count == 0 {
-        // fallback: count error tool ids
         tool_error_count = error_tool_ids.len();
     }
 
@@ -208,6 +226,8 @@ pub fn parse_session(path: &Path) -> EccResult<SessionSummary> {
         model_name,
         cwd,
         version,
+        malformed_lines,
+        file_errors,
     })
 }
 
@@ -221,7 +241,6 @@ pub fn find_all_sessions(projects_dir: &Path) -> EccResult<Vec<std::path::PathBu
     {
         let p = entry.path();
         if p.extension().map_or(false, |e| e == "jsonl") {
-            // Skip subagent sessions
             if p.parent().map_or(false, |parent| {
                 parent.file_name().map_or(false, |n| n == "subagents")
             }) {

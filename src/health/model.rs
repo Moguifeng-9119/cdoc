@@ -153,6 +153,8 @@ pub struct SessionSummary {
     pub model_name: Option<String>,
     pub cwd: Option<String>,
     pub version: Option<String>,
+    pub malformed_lines: usize,
+    pub file_errors: Vec<String>,
 }
 
 // ── Health report output ──
