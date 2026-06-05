@@ -8,10 +8,10 @@ Claude Code 健康诊断工具。管理配置、分析会话、检测遗忘。
 ## 安装
 
 ```bash
-cargo install --git https://github.com/2144983846/cdoc
+cargo install --git https://github.com/Moguifeng-9119/cdoc
 ```
 
-或从 [Releases](https://github.com/2144983846/cdoc/releases) 下载预编译二进制。
+或从 [Releases](https://github.com/Moguifeng-9119/cdoc/releases) 下载预编译二进制。
 
 ## 快速开始
 
