@@ -1,10 +1,13 @@
 [package]
-name = "cdoc"
+name = "cc-doctor"
 version = "0.1.0"
 edition = "2021"
-description = "CDoc — CC Doctor (Claude Code Doctor): diagnose and manage Claude Code configuration and session health"
+description = "CC Doctor — Claude Code diagnostics: config audit, session health monitoring, forgetting detection"
 license = "MIT"
-repository = "https://github.com/user/cdoc"
+repository = "https://github.com/Moguifeng-9119/cdoc"
+documentation = "https://github.com/Moguifeng-9119/cdoc"
+keywords = ["claude-code", "cli", "diagnostics", "monitoring", "health"]
+categories = ["command-line-utilities", "development-tools"]
 
 [[bin]]
 name = "cdoc"

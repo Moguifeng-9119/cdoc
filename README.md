@@ -21,7 +21,7 @@ it early.
 ## Install
 
 ```bash
-cargo install cdoc
+cargo install cc-doctor
 ```
 
 Or build from source:
