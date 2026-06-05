@@ -77,7 +77,7 @@ pub fn list_rules(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()> 
 
         let mut rule_files: Vec<RuleFile> = Vec::new();
         for file_path in &files {
-            if file_path.extension().map_or(true, |e| e != "md") {
+            if file_path.extension().is_none_or(|e| e != "md") {
                 continue;
             }
 

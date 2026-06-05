@@ -1,8 +1,15 @@
+use std::sync::LazyLock;
+
 use crate::config::ClaudePaths;
 use crate::error::{EccError, EccResult};
 use crate::fs::frontmatter::parse_frontmatter;
 use crate::fs::RealFileSystem;
 use crate::output;
+
+static EXTENDS_RE: LazyLock<regex::Regex> =
+    LazyLock::new(|| regex::Regex::new(r"extends\s+\[([^\]]+)\]\(([^)]+)\)").unwrap());
+static SKILL_RE: LazyLock<regex::Regex> =
+    LazyLock::new(|| regex::Regex::new(r"See skill:\s*`?([a-zA-Z0-9_-]+)`?").unwrap());
 
 pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
     if !RealFileSystem::exists(&paths.rules) {
@@ -34,7 +41,7 @@ pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
         };
 
         for file_path in &files {
-            if file_path.extension().map_or(true, |e| e != "md") {
+            if file_path.extension().is_none_or(|e| e != "md") {
                 continue;
             }
 
@@ -59,9 +66,8 @@ pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
             };
 
             // Check extends references
-            let extends_re = regex::Regex::new(r"extends\s+\[([^\]]+)\]\(([^)]+)\)").unwrap();
             for line in &parsed.body_lines {
-                for caps in extends_re.captures_iter(line) {
+                for caps in EXTENDS_RE.captures_iter(line) {
                     checks += 1;
                     let target = caps.get(2).unwrap().as_str();
                     // Resolve relative to the rule file's directory
@@ -77,9 +83,8 @@ pub fn validate_rules(paths: &ClaudePaths) -> EccResult<()> {
             }
 
             // Check skill refs
-            let skill_re = regex::Regex::new(r"See skill:\s*`?([a-zA-Z0-9_-]+)`?").unwrap();
             for line in &parsed.body_lines {
-                for caps in skill_re.captures_iter(line) {
+                for caps in SKILL_RE.captures_iter(line) {
                     checks += 1;
                     let skill_name = caps.get(1).unwrap().as_str();
                     let skill_dir = paths.skills.join(skill_name);

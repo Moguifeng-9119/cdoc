@@ -16,7 +16,7 @@ pub fn list_agents(paths: &ClaudePaths, long: bool, json: bool) -> EccResult<()>
     let mut agents: Vec<Agent> = Vec::new();
 
     for entry in &entries {
-        if !RealFileSystem::exists(entry) || entry.extension().map_or(true, |e| e != "md") {
+        if !RealFileSystem::exists(entry) || entry.extension().is_none_or(|e| e != "md") {
             continue;
         }
 

@@ -134,7 +134,7 @@ fn check_broken_skills(paths: &ClaudePaths) {
 fn check_broken_agents(paths: &ClaudePaths) {
     if let Ok(entries) = RealFileSystem::read_dir_entries(&paths.agents) {
         for entry in &entries {
-            if entry.extension().map_or(true, |e| e != "md") {
+            if entry.extension().is_none_or(|e| e != "md") {
                 continue;
             }
             if let Ok(content) = RealFileSystem::read_to_string(entry) {
